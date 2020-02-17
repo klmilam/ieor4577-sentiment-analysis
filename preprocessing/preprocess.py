@@ -18,6 +18,9 @@ class PreprocessTweets():
 
     def clean_text(self):
         """Cleans text by removing URLs, hashtags, and usernames."""
+        if not isinstance(self.input, str):
+            raise TypeError('Input to tokenize_text must be a string.')
+
         cleaned_tweet = ""
         for word in self.input.split(" "):
             if word.startswith("@") or word.startswith("#"):
@@ -30,20 +33,18 @@ class PreprocessTweets():
 
 
     def tokenize_text(self):
-        """Tokenizes tweet into an array of tokens.
-
-        Args:
-            tweet: a cleaned string.
-
-        Output:
-            An array of ints (tokens).
-        """
+        """Tokenizes tweet into an array of tokens."""
+        if not isinstance(self.input, str):
+            raise TypeError('Input to tokenize_text must be a string.')
         tknzr = TweetTokenizer()
         return tknzr.tokenize(self.input)
 
 
     def replace_token_with_index(self):
         """Replaces each token with its index in the embedding dictionary."""
+        if not isinstance(self.input, list):
+            raise TypeError('Input to replace_token_with_index must be a list.')
+
         tokens = []
         with tf.io.gfile.GFile(self.token_indices_json) as file:
             indices = json.load(file)
@@ -58,6 +59,9 @@ class PreprocessTweets():
 
     def pad_sequence(self):
         """Pads and slices list of indices."""
+        if not isinstance(self.input, list):
+            raise TypeError('Input to pad_sequence must be a list.')
+
         tokens = self.input[:self.max_length_tweet]
         tokens = tokens + [0]*(self.max_length_tweet-len(tokens))
         return tokens
