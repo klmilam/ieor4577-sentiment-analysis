@@ -1,7 +1,9 @@
 """Preprocessing library to clean and embed tweets"""
 
 import json
+import os
 from urllib.parse import urlparse
+import zipfile
 
 from nltk.tokenize import TweetTokenizer
 import tensorflow as tf
@@ -32,6 +34,21 @@ class PreprocessTweets():
         return cleaned_tweet.strip()
 
 
+    def load_embedding_dictionary(self):
+        """Loads embedding dictionary from zipped local file."""
+        if ".zip/" in self.token_indices_json:
+            archive_path = os.path.abspath(self.token_indices_json)
+            split = archive_path.split(".zip/")
+            archive_path = split[0] + ".zip"
+            path_inside = split[1]
+            archive = zipfile.ZipFile(archive_path, "r")
+            embedding = json.loads(archive.read(path_inside).decode("utf8"))
+        else:
+            with tf.io.gfile.GFile(self.token_indices_json) as file:
+                embedding = json.load(file)
+        return embedding
+
+
     def tokenize_text(self):
         """Tokenizes tweet into an array of tokens."""
         if not isinstance(self.input, str):
@@ -46,11 +63,10 @@ class PreprocessTweets():
             raise TypeError('Input to replace_token_with_index must be a list.')
 
         tokens = []
-        with tf.io.gfile.GFile(self.token_indices_json) as file:
-            indices = json.load(file)
+        embedding = self.load_embedding_dictionary()
 
         for word in self.input:
-            index = indices[word]
+            index = embedding[word]
             max_length = self.max_length_dictionary
             if not max_length or index < max_length:
                 tokens.append(index)
