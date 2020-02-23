@@ -67,7 +67,10 @@ class PreprocessTweets():
         embedding = self.load_embedding_dictionary()
 
         for word in self.input:
-            index = embedding[word]
+            if word in embedding:
+                index = embedding[word]
+            else:
+                index = 1
             max_length = self.max_length_dictionary
             if not max_length or index < max_length:
                 tokens.append(index)

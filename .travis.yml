@@ -6,4 +6,4 @@ install:
 script:
   - pytest --cov preprocessing
   - pylint preprocessing/test_preprocess.py
-  - pylint preprocessing/preprocess.py 
+  - pylint preprocessing/preprocess.py

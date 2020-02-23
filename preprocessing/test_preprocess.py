@@ -65,8 +65,18 @@ def test_replace_token_with_index_with_string():
         replace_token_with_index(input_string, input_json)
 
 
+def test_replace_token_with_index_with_unknown_token():
+    """Tests replace_token_with_index function with an unknown token."""
+    input_tokens = ["hereis", "is", "my", "tweet", "got", "it", "?"]
+    output_indices = [1, 32, 29, 274, 143, 33, 14]
+    input_json = "preprocessing/token_indices.json"
+    assert replace_token_with_index(
+        input_tokens, input_json) == output_indices
+
+
+
 def test_replace_token_with_index_with_zip():
-    """Tests replace_token_with_index"""
+    """Tests replace_token_with_index with a zipped file."""
     input_tokens = ["here", "is", "my", "tweet", "got", "it", "?"]
     output_indices = [229, 32, 29, 274, 143, 33, 14]
     input_json = "preprocessing/artifacts.zip/token_indices.json"
@@ -102,12 +112,14 @@ def test_pad_sequence_with_string():
 
 
 def run_pipeline(input_text, max_length_tweet=10):
+    """Calls run_pipeline method for testing."""
     input_json = "preprocessing/token_indices.json"
     return preprocess.run_pipeline(
         input_text, max_length_tweet, input_json)
 
 
 def test_run_pipeline():
+    """Tests run_pipeline function."""
     input_text = "@my_handler Here is my tweet http://www.google.com got it?"
     output_indices = [229, 32, 29, 274, 143, 33, 14, 0, 0, 0]
     assert run_pipeline(input_text) == output_indices
