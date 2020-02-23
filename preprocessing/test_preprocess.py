@@ -78,7 +78,7 @@ def test_replace_token_with_index_with_unknown_token():
 def test_replace_token_with_index_with_zip():
     """Tests replace_token_with_index with a zipped file."""
     input_tokens = ["here", "is", "my", "tweet", "got", "it", "?"]
-    output_indices = [229, 32, 29, 274, 143, 33, 14]
+    output_indices = [231, 34, 31, 276, 145, 35, 16]
     input_json = "preprocessing/artifacts.zip/token_indices.json"
     assert replace_token_with_index(
         input_tokens, input_json) == output_indices

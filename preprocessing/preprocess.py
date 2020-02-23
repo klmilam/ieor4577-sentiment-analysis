@@ -6,7 +6,6 @@ from urllib.parse import urlparse
 import zipfile
 
 from nltk.tokenize import TweetTokenizer
-import tensorflow as tf
 
 class PreprocessTweets():
     """Library to perform preprocessing for sentiment analysis on tweets."""
@@ -45,7 +44,7 @@ class PreprocessTweets():
             archive = zipfile.ZipFile(archive_path, "r")
             embedding = json.loads(archive.read(path_inside))
         else:
-            with tf.io.gfile.GFile(self.token_indices_json) as file:
+            with open(self.token_indices_json) as file:
                 embedding = json.load(file)
         return embedding
 
