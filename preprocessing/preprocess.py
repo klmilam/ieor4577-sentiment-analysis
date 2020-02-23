@@ -36,13 +36,14 @@ class PreprocessTweets():
 
     def load_embedding_dictionary(self):
         """Loads embedding dictionary from zipped local file."""
-        if ".zip/" in self.token_indices_json:
+        if self.token_indices_json and ".zip/" in self.token_indices_json:
             archive_path = os.path.abspath(self.token_indices_json)
-            split = archive_path.split(".zip/")
+            split = archive_path.split(".zip")
+            split_orig = self.token_indices_json.split(".zip")
             archive_path = split[0] + ".zip"
-            path_inside = split[1]
+            path_inside = split_orig[0].split("/")[-1] + split_orig[1]
             archive = zipfile.ZipFile(archive_path, "r")
-            embedding = json.loads(archive.read(path_inside).decode("utf8"))
+            embedding = json.loads(archive.read(path_inside))
         else:
             with tf.io.gfile.GFile(self.token_indices_json) as file:
                 embedding = json.load(file)
@@ -81,3 +82,15 @@ class PreprocessTweets():
         tokens = self.input[:self.max_length_tweet]
         tokens = tokens + [0]*(self.max_length_tweet-len(tokens))
         return tokens
+
+
+def run_pipeline(input_data, max_length_tweet, token_indices_json):
+    """Runs pipeline."""
+    cleaned_text = PreprocessTweets(input_data).clean_text()
+    tokenized_text = PreprocessTweets(cleaned_text).tokenize_text()
+    text_indices = PreprocessTweets(
+        tokenized_text,
+        token_indices_json=token_indices_json).replace_token_with_index()
+    padded_indices = PreprocessTweets(
+        text_indices, max_length_tweet=max_length_tweet).pad_sequence()
+    return padded_indices

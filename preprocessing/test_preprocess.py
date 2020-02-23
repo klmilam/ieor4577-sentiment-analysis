@@ -42,9 +42,8 @@ def test_tokenize_text_with_list():
         tokenize_text(input_list)
 
 
-def replace_token_with_index(tokens):
+def replace_token_with_index(tokens, input_json):
     """Calls replace_token_with_index method for testing."""
-    input_json = "preprocessing/token_indices.json"
     return preprocess.PreprocessTweets(
         tokens, token_indices_json=input_json).replace_token_with_index()
 
@@ -53,14 +52,26 @@ def test_replace_token_with_index():
     """Tests replace_token_with_index function."""
     input_tokens = ["here", "is", "my", "tweet", "got", "it", "?"]
     output_indices = [229, 32, 29, 274, 143, 33, 14]
-    assert replace_token_with_index(input_tokens) == output_indices
+    input_json = "preprocessing/token_indices.json"
+    assert replace_token_with_index(
+        input_tokens, input_json) == output_indices
 
 
 def test_replace_token_with_index_with_string():
     """Tests replace_token_with_index function with String input."""
     input_string = "here is my tweet got it?"
+    input_json = "preprocessing/artifacts/token_indices.json"
     with pytest.raises(TypeError):
-        replace_token_with_index(input_string)
+        replace_token_with_index(input_string, input_json)
+
+
+def test_replace_token_with_index_with_zip():
+    """Tests replace_token_with_index"""
+    input_tokens = ["here", "is", "my", "tweet", "got", "it", "?"]
+    output_indices = [229, 32, 29, 274, 143, 33, 14]
+    input_json = "preprocessing/artifacts.zip/token_indices.json"
+    assert replace_token_with_index(
+        input_tokens, input_json) == output_indices
 
 
 def pad_sequence(indices, size):
@@ -88,3 +99,15 @@ def test_pad_sequence_with_string():
     input_string = "here is my tweet got it?"
     with pytest.raises(TypeError):
         pad_sequence(input_string, 10)
+
+
+def run_pipeline(input_text, max_length_tweet=10):
+    input_json = "preprocessing/token_indices.json"
+    return preprocess.run_pipeline(
+        input_text, max_length_tweet, input_json)
+
+
+def test_run_pipeline():
+    input_text = "@my_handler Here is my tweet http://www.google.com got it?"
+    output_indices = [229, 32, 29, 274, 143, 33, 14, 0, 0, 0]
+    assert run_pipeline(input_text) == output_indices
