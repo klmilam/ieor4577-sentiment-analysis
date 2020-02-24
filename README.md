@@ -23,3 +23,5 @@ export SM_CHANNEL_TRAIN="s3://ieore4577-klm2190/twitter/train"
 export S3_REQUEST_TIMEOUT_MSEC=600000
 python3 -m model_training.sentiment_training 2>&1 | grep -v "Connection has been released. Continuing."
 ```
+
+Screenshot of results can be found at Training_results.png
