@@ -8,24 +8,23 @@ Author pharnoux
 
 import os
 import argparse
+from datetime import datetime
 import model_training.sentiment_dataset as sentiment_dataset
 import model_training.sentiment_model_cnn as sentiment_model_cnn
 import model_training.config_holder as config_holder
 
 def main(args):
-    """
-    Main training method
+    """Main training method
 
     """
 
     print("Preparing for training...")
-
     training_config = config_holder.ConfigHolder(args.config_file).config
 
     training_config["num_epoch"] = args.num_epoch
 
-    train_dataset = sentiment_dataset.train_input_fn(args.train, training_config)
-    validation_dataset = sentiment_dataset.validation_input_fn(args.validation, training_config)
+    train_dataset = sentiment_dataset.train_input_fn(args.eval, training_config)
+    validation_dataset = sentiment_dataset.validation_input_fn(args.eval, training_config)
     eval_dataset = sentiment_dataset.eval_input_fn(args.eval, training_config)
 
     model = sentiment_model_cnn.keras_model_fn(None, training_config)
@@ -51,6 +50,7 @@ def get_arg_parser():
     Adding this method to unit test
 
     """
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -75,12 +75,12 @@ def get_arg_parser():
         "--model_output_dir",
         type=str,
         required=False,
-        default=os.environ.get("SM_MODEL_DIR"))
+        default=os.path.join(os.environ.get("SM_MODEL_DIR"), timestamp))
     parser.add_argument(
         "--model_dir",
         type=str,
         required=False,
-        default=os.environ.get("SM_MODEL_DIR"))
+        default=os.path.join(os.environ.get("SM_MODEL_DIR"), timestamp))
     parser.add_argument(
         "--num_epoch",
         type=int,

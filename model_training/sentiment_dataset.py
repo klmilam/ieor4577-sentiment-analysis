@@ -33,10 +33,8 @@ def _load_json_file(json_path, config):
     features = []
     labels = []
 
-    with open(json_path, "r") as file:
-
+    with tf.io.gfile.GFile(json_path, "r") as file:
         for line in file:
-
             entry = json.loads(line)
 
             if len(entry["features"]) != config["padding_size"]:
@@ -46,14 +44,13 @@ def _load_json_file(json_path, config):
 
             labels.append(entry["sentiment"] / 4)
             features.append(entry["features"])
-
     return features, labels
 
 def _input_fn(directory, config, mode):
 
     print("Fetching {} data...".format(mode))
 
-    all_files = os.listdir(directory)
+    all_files = tf.io.gfile.listdir(directory)
 
     all_features = []
     all_labels = []

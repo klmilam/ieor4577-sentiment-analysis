@@ -1,30 +1,59 @@
-"""
-Model definition for CNN sentiment training
+"""Model definition for CNN sentiment training."""
 
-
-"""
-
+import numpy as np
 import os
 import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras.initializers import Constant
 
 
 def keras_model_fn(_, config):
-    """
-    Creating a CNN model for sentiment modeling
+    """Creates a CNN model for sentiment modeling."""
+    embedding_matrix = np.zeros((
+        config["embeddings_dictionary_size"],
+        config["embeddings_vector_size"]))
 
-    """
+    with tf.io.gfile.GFile(config["embeddings_path"], "r") as file:
+        input_data = file.read()
+        split = input_data.split("\n")
 
-    cnn_model = None
+    index = 0
+    for val in split:
+        data = np.asarray(split[index].split()[1:], dtype='float32')
+        if len(data) == 25:
+            embedding_matrix[index + 2] = data
+        else:
+            padded = np.zeros((25), 'float32')
+            padded[:len(data)] = data
+            embedding_matrix[index + 2] = padded
+        index += 1
 
+
+    cnn_model = keras.Sequential()
+    cnn_model.add(layers.Embedding(
+        input_dim=config["embeddings_dictionary_size"],
+        input_length=config["padding_size"],
+        embeddings_initializer=Constant(embedding_matrix),
+        output_dim=config["embeddings_vector_size"],
+        trainable=True))
+    cnn_model.add(layers.Conv1D(
+        filters=100,
+        kernel_size=2,
+        strides=1,
+        padding="valid",
+        activation="relu"))
+    cnn_model.add(layers.GlobalMaxPool1D())
+    cnn_model.add(layers.Dense(100, activation="relu"))
+    cnn_model.add(layers.Dense(1, activation="sigmoid"))
+    cnn_model.compile(
+        optimizer="adam",
+        loss="binary_crossentropy",
+        metrics=["accuracy"])
     return cnn_model
 
 def save_model(model, output):
-    """
-    Method to save models in SaveModel format with signature to allow for serving
-
-
-    """
-
+    """Saves models in SaveModel format with signature to support serving."""
+    print(output)
     tf.saved_model.save(model, os.path.join(output, "1"))
-
     print("Model successfully saved at: {}".format(output))
