@@ -17,7 +17,9 @@ pylint pylint preprocessing/preprocess.py
 
 ## Run training
 ```bash
-export SM_CHANNEL_EVAL=data/eval
+export SM_CHANNEL_EVAL="s3://ieore4577-klm2190/twitter/eval"
+export SM_CHANNEL_VALIDATION="s3://ieore4577-klm2190/twitter/dev"
+export SM_CHANNEL_TRAIN="s3://ieore4577-klm2190/twitter/train"
 export S3_REQUEST_TIMEOUT_MSEC=600000
 python3 -m model_training.sentiment_training 2>&1 | grep -v "Connection has been released. Continuing."
 ```

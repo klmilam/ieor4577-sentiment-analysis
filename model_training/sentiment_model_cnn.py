@@ -1,7 +1,8 @@
 """Model definition for CNN sentiment training."""
 
-import numpy as np
 import os
+import numpy as np
+
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
@@ -18,8 +19,7 @@ def keras_model_fn(_, config):
         input_data = file.read()
         split = input_data.split("\n")
 
-    index = 0
-    for val in split:
+    for index, _ in enumerate(split):
         data = np.asarray(split[index].split()[1:], dtype='float32')
         if len(data) == 25:
             embedding_matrix[index + 2] = data
@@ -27,8 +27,6 @@ def keras_model_fn(_, config):
             padded = np.zeros((25), 'float32')
             padded[:len(data)] = data
             embedding_matrix[index + 2] = padded
-        index += 1
-
 
     cnn_model = keras.Sequential()
     cnn_model.add(layers.Embedding(
@@ -52,8 +50,8 @@ def keras_model_fn(_, config):
         metrics=["accuracy"])
     return cnn_model
 
+
 def save_model(model, output):
     """Saves models in SaveModel format with signature to support serving."""
-    print(output)
     tf.saved_model.save(model, os.path.join(output, "1"))
     print("Model successfully saved at: {}".format(output))

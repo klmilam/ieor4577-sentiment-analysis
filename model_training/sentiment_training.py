@@ -23,8 +23,9 @@ def main(args):
 
     training_config["num_epoch"] = args.num_epoch
 
-    train_dataset = sentiment_dataset.train_input_fn(args.eval, training_config)
-    validation_dataset = sentiment_dataset.validation_input_fn(args.eval, training_config)
+    train_dataset = sentiment_dataset.train_input_fn(args.train, training_config)
+    validation_dataset = sentiment_dataset.validation_input_fn(
+        args.validation, training_config)
     eval_dataset = sentiment_dataset.eval_input_fn(args.eval, training_config)
 
     model = sentiment_model_cnn.keras_model_fn(None, training_config)
