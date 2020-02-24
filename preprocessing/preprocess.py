@@ -10,11 +10,15 @@ from nltk.tokenize import TweetTokenizer
 class PreprocessTweets():
     """Library to perform preprocessing for sentiment analysis on tweets."""
     def __init__(self, input_data, max_length_dictionary=None,
-                 max_length_tweet=None, token_indices_json=None):
+                 max_length_tweet=None, token_indices_json=None,
+                 embedding=None):
         self.input = input_data
         self.max_length_dictionary = max_length_dictionary
         self.max_length_tweet = max_length_tweet
         self.token_indices_json = token_indices_json
+        self.embedding = embedding
+        if token_indices_json:
+            self.load_embedding_dictionary()
 
 
     def clean_text(self):
@@ -42,12 +46,11 @@ class PreprocessTweets():
             archive_path = split[0] + ".zip"
             path_inside = split_orig[0].split("/")[-1] + split_orig[1]
             archive = zipfile.ZipFile(archive_path, "r")
-            embedding = json.loads(archive.read(path_inside))
+            self.embedding = json.loads(archive.read(path_inside).decode("utf-8"))
         else:
             with open(self.token_indices_json) as file:
-                embedding = json.load(file)
-        return embedding
-
+                self.embedding = json.load(file)
+        return self.embedding
 
     def tokenize_text(self):
         """Tokenizes tweet into an array of tokens."""
@@ -63,11 +66,10 @@ class PreprocessTweets():
             raise TypeError('Input to replace_token_with_index must be a list.')
 
         tokens = []
-        embedding = self.load_embedding_dictionary()
 
         for word in self.input:
-            if word in embedding:
-                index = embedding[word]
+            if word in self.embedding:
+                index = self.embedding[word]
             else:
                 index = 1
             max_length = self.max_length_dictionary
@@ -86,13 +88,13 @@ class PreprocessTweets():
         return tokens
 
 
-def run_pipeline(input_data, max_length_tweet, token_indices_json):
+def run_pipeline(input_data, max_length_tweet, embedding=None):
     """Runs pipeline."""
     cleaned_text = PreprocessTweets(input_data).clean_text()
     tokenized_text = PreprocessTweets(cleaned_text).tokenize_text()
     text_indices = PreprocessTweets(
         tokenized_text,
-        token_indices_json=token_indices_json).replace_token_with_index()
+        embedding=embedding).replace_token_with_index()
     padded_indices = PreprocessTweets(
         text_indices, max_length_tweet=max_length_tweet).pad_sequence()
     return padded_indices

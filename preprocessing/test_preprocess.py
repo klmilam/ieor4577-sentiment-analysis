@@ -56,6 +56,15 @@ def test_replace_token_with_index():
     assert replace_token_with_index(
         input_tokens, input_json) == output_indices
 
+def test_replace_token_with_index_direct_input():
+    input_tokens = ["here", "is", "my", "tweet", "got", "it", "?"]
+    output_indices = [229, 32, 29, 274, 143, 33, 14]
+    input_json = "preprocessing/token_indices.json"
+    embedding = preprocess.PreprocessTweets(
+        None, token_indices_json=input_json).load_embedding_dictionary()
+    assert preprocess.PreprocessTweets(
+        input_tokens, embedding=embedding).replace_token_with_index() == output_indices
+
 
 def test_replace_token_with_index_with_string():
     """Tests replace_token_with_index function with String input."""
@@ -114,8 +123,10 @@ def test_pad_sequence_with_string():
 def run_pipeline(input_text, max_length_tweet=10):
     """Calls run_pipeline method for testing."""
     input_json = "preprocessing/token_indices.json"
+    embedding = preprocess.PreprocessTweets(
+        None, token_indices_json=input_json).load_embedding_dictionary()
     return preprocess.run_pipeline(
-        input_text, max_length_tweet, input_json)
+        input_text, max_length_tweet, embedding)
 
 
 def test_run_pipeline():

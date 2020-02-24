@@ -14,3 +14,10 @@ pytest --cov=preprocessing
 pylint preprocessing/test_preprocess.py
 pylint pylint preprocessing/preprocess.py
 ```
+
+## Run training
+```bash
+export SM_CHANNEL_EVAL=data/eval
+export S3_REQUEST_TIMEOUT_MSEC=600000
+python3 -m model_training.sentiment_training 2>&1 | grep -v "Connection has been released. Continuing."
+```
