@@ -15,6 +15,9 @@ pylint preprocessing/test_preprocess.py
 pylint pylint preprocessing/preprocess.py
 ```
 
+## Glue ETL
+The Glue ETL script is available at `glue_preprocess.py`
+
 ## Run training
 ```bash
 export SM_CHANNEL_EVAL="s3://ieore4577-klm2190/twitter/eval"
@@ -24,4 +27,4 @@ export S3_REQUEST_TIMEOUT_MSEC=600000
 python3 -m model_training.sentiment_training 2>&1 | grep -v "Connection has been released. Continuing."
 ```
 
-Screenshot of results can be found at Training_results.png
+Screenshot of results can be found at `Training_results.png`
