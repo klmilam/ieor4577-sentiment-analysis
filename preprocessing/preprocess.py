@@ -9,6 +9,7 @@ from nltk.tokenize import TweetTokenizer
 
 class PreprocessTweets():
     """Library to perform preprocessing for sentiment analysis on tweets."""
+    #pylint: disable=too-many-arguments
     def __init__(self, input_data, max_length_dictionary=None,
                  max_length_tweet=None, token_indices_json=None,
                  embedding=None):
