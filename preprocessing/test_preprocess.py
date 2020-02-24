@@ -57,6 +57,7 @@ def test_replace_token_with_index():
         input_tokens, input_json) == output_indices
 
 def test_replace_token_with_index_direct_input():
+    """Tests passing embedding dictionary directly."""
     input_tokens = ["here", "is", "my", "tweet", "got", "it", "?"]
     output_indices = [229, 32, 29, 274, 143, 33, 14]
     input_json = "preprocessing/token_indices.json"
