@@ -89,12 +89,14 @@ class PreprocessTweets():
         return tokens
 
 
-def run_pipeline(input_data, max_length_tweet, embedding=None):
+def run_pipeline(input_data, max_length_tweet, embedding=None,
+                 max_length_dictionary=None):
     """Runs pipeline."""
     cleaned_text = PreprocessTweets(input_data).clean_text()
     tokenized_text = PreprocessTweets(cleaned_text).tokenize_text()
     text_indices = PreprocessTweets(
         tokenized_text,
+        max_length_dictionary=max_length_dictionary,
         embedding=embedding).replace_token_with_index()
     padded_indices = PreprocessTweets(
         text_indices, max_length_tweet=max_length_tweet).pad_sequence()
