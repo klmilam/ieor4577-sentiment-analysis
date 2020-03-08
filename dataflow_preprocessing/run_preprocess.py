@@ -17,12 +17,13 @@ from datetime import datetime
 import logging
 import os
 import pandas as pd
+import posixpath
 import sys
 
 import apache_beam as beam
-from apache_beam.options.pipeline_options import PipelineOptions
+from apache_beam.options.pipeline_options import GoogleCloudOptions, PipelineOptions, SetupOptions
 
-from dataflow_preprocessing import create_tfrecords
+from preprocess import create_tfrecords
 
 
 def parse_arguments(argv):
@@ -43,7 +44,7 @@ def parse_arguments(argv):
     parser.add_argument(
         "--job_dir",
         type=str,
-        default="gs://internal-klm/job/" + timestamp,
+        default="gs://internal-klm/sentiment-analysis/job/" + timestamp,
         help="""GCS bucket to stage code and write temporary outputs for cloud
         runs.""")
     parser.add_argument(
@@ -56,6 +57,11 @@ def parse_arguments(argv):
         help="Local or cloud file containing input data.",
         type=str,
         default="gs://internal-klm/sentiment-analysis/training.full.csv")
+    parser.add_argument(
+        "--token_indices_file",
+        help="Local or cloud file containing token indices.",
+        type=str,
+        default="gs://internal-klm/sentiment-analysis/token_indices.json")
     # parser.add_argument(
     #     "--output_directory",
     #     help="Local or cloud directory to write output TFRecords.",
@@ -67,23 +73,32 @@ def parse_arguments(argv):
 
 def get_pipeline_options(args):
     """Returns pipeline options."""
-    options = {"project": args.project_id}
-    if args.cloud:
-        if not args.job_dir:
-            raise ValueError("Job directory must be specified for Dataflow.")
-        options.update({
-            "job_name": args.job_name,
-            "setup_file": args.setup_file,
-            "staging_location": os.path.join(args.job_dir, "staging"),
-            "temp_location": os.path.join(args.job_dir, "tmp"),
-        })
-    return PipelineOptions(flags=[], **options)
+    if not args.cloud:
+        options = {"project": args.project_id}
+        return PipelineOptions(flags=[], **options)
+
+    options = PipelineOptions()
+    setup_options = options.view_as(SetupOptions)
+    setup_options.setup_file = posixpath.abspath(
+        posixpath.join(posixpath.dirname(__file__),
+        "setup.py"))
+    setup_options.save_main_session = True
+    print(setup_options.setup_file)
+    if not args.job_dir:
+        raise ValueError("Job directory must be specified for Dataflow.")
+    google_cloud_options = options.view_as(GoogleCloudOptions)
+    google_cloud_options.project = args.project_id
+    google_cloud_options.job_name = args.job_name
+    google_cloud_options.staging_location = os.path.join(args.job_dir, "staging")
+    google_cloud_options.temp_location = os.path.join(args.job_dir, "tmp")
+    google_cloud_options.region = "us-central1"
+    return options
 
 
 def main():
     """Configures and runs an Apache Beam pipeline."""
     args = parse_arguments(sys.argv)
-    header = pd.read_csv(args.input_file, index_col=0, nrows=0).columns.tolist()
+    header = ["Sentiment", "TwitterID", "Date", "QueryType", "UserID", "Tweet"]
     logging.getLogger().setLevel(logging.INFO)
     options = get_pipeline_options(args)
     runner = "DataflowRunner" if args.cloud else "DirectRunner"

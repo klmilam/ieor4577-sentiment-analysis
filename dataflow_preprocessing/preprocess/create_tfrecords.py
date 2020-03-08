@@ -13,10 +13,12 @@
 # limitations under the License.
 
 import logging
+import json
 
 import apache_beam as beam
+import tensorflow as tf
 
-from preprocessing import preprocess
+from preprocess import preprocess
 
 class ParseCSV(beam.DoFn):
     def __init__(self, header):
@@ -28,10 +30,31 @@ class ParseCSV(beam.DoFn):
         yield row
 
 
+def load_embedding_from_cloud(filename):
+    with tf.io.gfile.GFile(filename) as file:
+        return json.load(file)
+
+
+class ProcessTweet(beam.DoFn):
+    def process(self, element, token_indices_file):
+        tweet = element["Tweet"]
+        embedding = load_embedding_from_cloud(token_indices_file)
+        print(tweet)
+        features = preprocess.run_pipeline(
+            tweet,
+            max_length_tweet=40,
+            embedding=embedding,
+            max_length_dictionary=10000)
+        element["features"] = features
+        return [element]
+
+
 def build_pipeline(pipeline, header, args):
+    embedding = load_embedding_from_cloud(args.token_indices_file)
     input_data = (
         pipeline
         | beam.io.ReadFromText(args.input_file, skip_header_lines=1)
         | beam.ParDo(ParseCSV(header))
+        | beam.ParDo(ProcessTweet(), args.token_indices_file)
     )
     input_data | beam.Map(print)
