@@ -1,4 +1,4 @@
-apache-beam[gcp]>=2.16.0
+apache-beam[gcp]==2.16.0
 gcsfs
 tensorflow==1.14.0
 nltk
@@ -6,3 +6,4 @@ pandas
 pytest
 pytest-cov
 pylint
+tensorflow-transform==0.14.0

@@ -18,7 +18,7 @@ from setuptools import setup
 
 NAME = "Preprocess-Tweets"
 VERSION = "1.0"
-REQUIRED_PACKAGES = ["tensorflow", "pandas", "nltk"]
+REQUIRED_PACKAGES = ["tensorflow", "pandas", "nltk", "tensorflow-transform"]
 
 setup(
     name=NAME,

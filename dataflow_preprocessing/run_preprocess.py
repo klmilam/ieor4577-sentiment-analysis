@@ -21,7 +21,7 @@ import posixpath
 import sys
 
 import apache_beam as beam
-from apache_beam.options.pipeline_options import GoogleCloudOptions, PipelineOptions, SetupOptions
+from apache_beam.options import pipeline_options
 
 from preprocess import create_tfrecords
 
@@ -62,11 +62,11 @@ def parse_arguments(argv):
         help="Local or cloud file containing token indices.",
         type=str,
         default="gs://internal-klm/sentiment-analysis/token_indices.json")
-    # parser.add_argument(
-    #     "--output_directory",
-    #     help="Local or cloud directory to write output TFRecords.",
-    #     type=str,
-    #     required=True)
+    parser.add_argument(
+        "--output_dir",
+        help="Local or cloud directory to write output TFRecords.",
+        type=str,
+        default="gs://internal-klm/sentiment-analysis/output/{}".format(timestamp))
     args, _ = parser.parse_known_args(args=argv[1:])
     return args
 
@@ -75,18 +75,20 @@ def get_pipeline_options(args):
     """Returns pipeline options."""
     if not args.cloud:
         options = {"project": args.project_id}
-        return PipelineOptions(flags=[], **options)
+        return pipeline_options.PipelineOptions(flags=[], **options)
 
-    options = PipelineOptions()
-    setup_options = options.view_as(SetupOptions)
+    options = pipeline_options.PipelineOptions()
+    worker_options = options.view_as(pipeline_options.WorkerOptions)
+    worker_options.machine_type = "n1-highmem-8"
+    setup_options = options.view_as(pipeline_options.SetupOptions)
     setup_options.setup_file = posixpath.abspath(
         posixpath.join(posixpath.dirname(__file__),
         "setup.py"))
-    setup_options.save_main_session = True
+    # setup_options.save_main_session = True
     print(setup_options.setup_file)
     if not args.job_dir:
         raise ValueError("Job directory must be specified for Dataflow.")
-    google_cloud_options = options.view_as(GoogleCloudOptions)
+    google_cloud_options = options.view_as(pipeline_options.GoogleCloudOptions)
     google_cloud_options.project = args.project_id
     google_cloud_options.job_name = args.job_name
     google_cloud_options.staging_location = os.path.join(args.job_dir, "staging")

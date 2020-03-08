@@ -7,6 +7,7 @@ import zipfile
 
 from nltk.tokenize import TweetTokenizer
 
+
 class PreprocessTweets():
     """Library to perform preprocessing for sentiment analysis on tweets."""
     #pylint: disable=too-many-arguments
@@ -31,10 +32,13 @@ class PreprocessTweets():
         for word in self.input.split(" "):
             if word.startswith("@") or word.startswith("#"):
                 continue
-            result = urlparse(word)
-            if all([result.scheme, result.netloc]):
-                continue
-            cleaned_tweet += word.lower() + " "
+            try:
+                result = urlparse(word)
+                if all([result.scheme, result.netloc]):
+                    continue
+                cleaned_tweet += word.lower() + " "
+            except:
+                pass
         return cleaned_tweet.strip()
 
 
