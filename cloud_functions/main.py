@@ -24,7 +24,7 @@ def predict(request):
     features = preprocess.run_pipeline(tweet, 40, embedding, 10000)
 
     preprocess_time = datetime.now()
-    service = googleapiclient.discovery.build('ml', 'v1')
+    service = googleapiclient.discovery.build('ml', 'v1', cache_discovery=False)
     name = 'projects/{}/models/{}'.format("internal-klm", "sentiment_analysis_tuned")
     response = service.projects().predict(
         name=name,
