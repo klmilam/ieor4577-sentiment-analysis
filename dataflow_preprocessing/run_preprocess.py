@@ -79,12 +79,11 @@ def get_pipeline_options(args):
 
     options = pipeline_options.PipelineOptions()
     worker_options = options.view_as(pipeline_options.WorkerOptions)
-    worker_options.machine_type = "n1-highmem-8"
+    worker_options.machine_type = "n1-highmem-16"
     setup_options = options.view_as(pipeline_options.SetupOptions)
     setup_options.setup_file = posixpath.abspath(
         posixpath.join(posixpath.dirname(__file__),
         "setup.py"))
-    # setup_options.save_main_session = True
     print(setup_options.setup_file)
     if not args.job_dir:
         raise ValueError("Job directory must be specified for Dataflow.")

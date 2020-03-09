@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import logging
 import json
 import os
@@ -44,17 +45,18 @@ def load_embedding_from_cloud(filename):
 
 
 class ProcessTweet(beam.DoFn):
-    def process(self, element, token_indices_file):
-        tweet = element["Tweet"]
+    def process(self, elements, token_indices_file):
         embedding = load_embedding_from_cloud(token_indices_file)
-        features = preprocess.run_pipeline(
-            tweet,
-            max_length_tweet=40,
-            embedding=embedding,
-            max_length_dictionary=10000)
-        element["features"] = features
-        element["Sentiment"] = int(element["Sentiment"].strip("'").strip('"'))
-        yield element
+        for element in elements:
+            tweet = element["Tweet"]
+            features = preprocess.run_pipeline(
+                tweet,
+                max_length_tweet=40,
+                embedding=embedding,
+                max_length_dictionary=10000)
+            element["features"] = features
+            element["Sentiment"] = int(element["Sentiment"].strip("'").strip('"'))
+            yield element
 
 
 @beam.ptransform_fn
@@ -104,7 +106,7 @@ def randomly_split(p, train_size, validation_size, test_size):
 
 @beam.ptransform_fn
 def WriteOutput(p, prefix, output_dir):
-    path = os.path.join(output_dir, prefix)
+    path = os.path.join(output_dir, prefix.lower(), prefix.lower())
     schema = dataset_schema.from_feature_spec(features.RAW_FEATURE_SPEC)
     coder = coders.ExampleProtoCoder(schema)
     _ = (
@@ -118,16 +120,20 @@ def WriteOutput(p, prefix, output_dir):
 
 
 def build_pipeline(pipeline, header, args):
-    # embedding = load_embedding_from_cloud(args.token_indices_file)
     input_data = (
         pipeline
         | "ReadCSV" >> beam.io.ReadFromText(
             args.input_file, skip_header_lines=1)
         | "ParseCSV" >> beam.ParDo(ParseCSV(header))
+    )
+    batches = (
+        input_data
+        | "BatchElements" >> beam.transforms.BatchElements(
+            min_batch_size=250,max_batch_size=10000)
         | "ProcessTweet" >> beam.ParDo(ProcessTweet(), args.token_indices_file)
     )
     raw_train, raw_eval, raw_test = (
-        input_data
+        batches
         | "RandomlySplitData" >> randomly_split(
             train_size=.7,
             validation_size=.15,

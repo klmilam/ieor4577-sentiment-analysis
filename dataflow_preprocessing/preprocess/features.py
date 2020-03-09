@@ -38,7 +38,7 @@ def get_raw_feature_spec():
             for name in NUMERIC_COLUMNS] +
         [(name, tf.io.FixedLenFeature([], tf.int64))
             for name in BOOLEAN_COLUMNS] +
-        [(name, tf.io.FixedLenFeature([], tf.float32))
+        [(name, tf.io.FixedLenFeature([40], tf.float32))
             for name in NUMERIC_LIST_COLUMNS]
     )
     return features
