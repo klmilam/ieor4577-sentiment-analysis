@@ -28,7 +28,7 @@ def predict(request):
     name = 'projects/{}/models/{}'.format("internal-klm", "sentiment_analysis_tuned")
     response = service.projects().predict(
         name=name,
-        body={'instances': {"features_input": features}}
+        body={'instances': {"embedding_input": features}}
     ).execute()
     prediction = response["predictions"]
     prediction_time = datetime.now()
