@@ -4,6 +4,7 @@ import json
 import os
 from urllib.parse import urlparse
 import zipfile
+import tensorflow as tf
 
 from nltk.tokenize import TweetTokenizer
 
@@ -49,7 +50,7 @@ class PreprocessTweets():
             archive = zipfile.ZipFile(archive_path, "r")
             self.embedding = json.loads(archive.read(path_inside).decode("utf-8"))
         else:
-            with open(self.token_indices_json) as file:
+            with tf.gfile.GFile(self.token_indices_json) as file:
                 self.embedding = json.load(file)
         return self.embedding
 
