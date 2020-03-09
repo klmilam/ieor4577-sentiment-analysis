@@ -1,0 +1,58 @@
+trainingInput:
+  scaleTier: CUSTOM
+  masterType: n1-highcpu-16
+  hyperparameters:
+    goal: MAXIMIZE
+    hyperparameterMetricTag: val_acc
+    maxTrials: 30
+    maxParallelTrials: 3
+    params:
+      - parameterName: num_cnn_layers
+        type: DISCRETE
+        discreteValues:
+        - 1
+        - 2
+        - 3
+      - parameterName: first-filter-size
+        type: DISCRETE
+        discreteValues:
+        - 100
+        - 200
+        - 400
+        scaleType: UNIT_LINEAR_SCALE
+      - parameterName: cnn-layer-sizes-scale-factor
+        type: DISCRETE
+        discreteValues:
+        - .5
+        - 1
+        - 2
+        scaleType: UNIT_LINEAR_SCALE
+      - parameterName: num_dense_layers
+        type: DISCRETE
+        discreteValues:
+        - 1
+        - 2
+        - 3
+      - parameterName: first_layer_size
+        type: DISCRETE
+        discreteValues:
+        - 64
+        - 128
+        - 256
+        - 512
+        - 1024
+        scaleType: UNIT_LINEAR_SCALE
+      - parameterName: dense_layer_sizes_scale_factor
+        type: DISCRETE
+        discreteValues:
+        - .5
+        - 1
+        - 2
+        scaleType: UNIT_LINEAR_SCALE
+      - parameterName: batch_size
+        type: DISCRETE
+        discreteValues:
+        - 1024
+        - 2048
+        - 5096
+        scaleType: UNIT_LINEAR_SCALE

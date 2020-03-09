@@ -54,7 +54,7 @@ def _input_fn(directory, config, mode):
     dataset = dataset.prefetch(tf.contrib.data.AUTOTUNE)
     dataset = dataset.repeat()
     if mode == "train":
-        dataset = dataset.shuffle(10000, seed=12345).repeat(config["num_epoch"])
+        dataset = dataset.shuffle(1000, seed=12345).repeat(config["num_epoch"])
 
     iterator = dataset.make_one_shot_iterator()
     dataset_features, dataset_labels = iterator.get_next()

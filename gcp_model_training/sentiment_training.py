@@ -28,20 +28,22 @@ def main(args):
         args.validation, training_config)
     eval_dataset = sentiment_dataset.eval_input_fn(args.eval, training_config)
 
-    model = sentiment_model_cnn.keras_model_fn(None, training_config)
+    model = sentiment_model_cnn.keras_model_fn(None, training_config, args)
 
     print("Starting training...")
 
     model.fit(
         x=train_dataset[0], y=train_dataset[1],
-        steps_per_epoch=int(1120650 / training_config["batch_size"]),
+        steps_per_epoch=int(args.num_train_samples / args.batch_size),
         epochs=training_config["num_epoch"],
         validation_data=(validation_dataset[0], validation_dataset[1]),
-        validation_steps=int(232871 / training_config["batch_size"])
+        validation_steps=int(args.num_val_samples / args.batch_size)
     )
 
     score = model.evaluate(
-        eval_dataset[0], eval_dataset[1], steps=eval_dataset[2]["num_batches"], verbose=0)
+        eval_dataset[0], eval_dataset[1],
+        steps=int(args.num_test_samples / args.batch_size),
+        verbose=0)
 
     print("Test loss:{}".format(score[0]))
     print("Test accuracy:{}".format(score[1]))
@@ -97,6 +99,53 @@ def get_arg_parser():
     parser.add_argument(
         "--job-dir",
         type=str)
+    parser.add_argument(
+        "--num_cnn_layers",
+        type=int,
+        default=3)
+    parser.add_argument(
+        '--cnn-layer-sizes-scale-factor',
+        help="Determine how the sizes of the CNN filters decay.",
+        default=2,
+        type=float)
+    parser.add_argument(
+        '--first-filter-size',
+        help="Filter size of the first CNN layer.",
+        default=400,
+        type=int
+    )
+    parser.add_argument(
+        "--num_dense_layers",
+        type=int,
+        default=3)
+    parser.add_argument(
+        '--dense_layer_sizes_scale_factor',
+        help="Determine how the sizes of the dense layers decay.",
+        default=0.5,
+        type=float
+    )
+    parser.add_argument(
+        '--first_layer_size',
+        help="Filter size of the first dense layer.",
+        default=1024,
+        type=int
+    )
+    parser.add_argument(
+        "--batch_size",
+        default=1024,
+        type=int)
+    parser.add_argument(
+        "--num_train_samples",
+        default=1120650,
+        type=int)
+    parser.add_argument(
+        "--num_val_samples",
+        default=232871,
+        type=int)
+    parser.add_argument(
+        "--num_test_samples",
+        default=232509,
+        type=int)
     return parser
 
 

@@ -28,3 +28,37 @@ python3 -m model_training.sentiment_training 2>&1 | grep -v "Connection has been
 ```
 
 Screenshot of results can be found at `Training_results.png`
+
+## Run Training on AI Platform
+### Train locally
+```bash
+gcloud ai-platform local train \
+  --package-path gcp_model_training \
+  --module-name gcp_model_training.sentiment_training \
+  --job-dir gs://internal-klm/sentiment-analysis/model/sentiment_analysis_$(date +%Y%m%d%H%M%S)
+```
+
+### Train on AI Platform
+```bash
+gcloud ai-platform jobs submit training sentiment_analysis_$(date +%Y%m%d%H%M%S) \
+  --package-path gcp_model_training \
+  --module-name gcp_model_training.sentiment_training \
+  --job-dir gs://internal-klm/sentiment-analysis/model/sentiment_analysis_$(date +%Y%m%d%H%M%S) \
+  --region us-central1 \
+  --python-version 3.5 \
+  --runtime-version 1.14 \
+  --stream-logs
+```
+
+### Hyperparameter Tuning
+```bash
+gcloud ai-platform jobs submit training sentiment_analysis_$(date +%Y%m%d%H%M%S) \
+  --package-path gcp_model_training \
+  --config gcp_model_training/hptuning.yaml \
+  --module-name gcp_model_training.sentiment_training \
+  --job-dir gs://internal-klm/sentiment-analysis/model/sentiment_analysis_$(date +%Y%m%d%H%M%S) \
+  --region us-central1 \
+  --python-version 3.5 \
+  --runtime-version 1.14 \
+  --stream-logs
+```

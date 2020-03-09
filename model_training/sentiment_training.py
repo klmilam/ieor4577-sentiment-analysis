@@ -92,7 +92,6 @@ def get_arg_parser():
         type=str,
         default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "training_config.json"),
         help="The path to the training config file.")
-
     return parser
 
 

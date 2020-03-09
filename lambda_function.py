@@ -4,7 +4,7 @@ from preprocessing import preprocess
 def lambda_handler(event, context):
     
     tweet = event["tweet"]
-    zip_filename = "preprocessing/n artifacts.zip/token_indices.json"
+    zip_filename = "preprocessing/artifacts.zip/token_indices.json"
     embedding = preprocess.PreprocessTweets(
         None,
         token_indices_json=zip_filename).load_embedding_dictionary()

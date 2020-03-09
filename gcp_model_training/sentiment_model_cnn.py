@@ -9,7 +9,7 @@ from tensorflow.keras import layers
 from tensorflow.keras.initializers import Constant
 
 
-def keras_model_fn(_, config):
+def keras_model_fn(_, config, args):
     """Creates a CNN model for sentiment modeling."""
     embedding_matrix = np.zeros((
         config["embeddings_dictionary_size"],
@@ -35,15 +35,30 @@ def keras_model_fn(_, config):
         embeddings_initializer=Constant(embedding_matrix),
         output_dim=config["embeddings_vector_size"],
         trainable=True))
-    cnn_model.add(layers.Conv1D(
-        filters=100,
-        kernel_size=2,
-        strides=1,
-        padding="valid",
-        activation="relu"))
+    cnn_filters = [
+        min(1000,
+            max(8, int(
+            args.first_filter_size * args.cnn_layer_sizes_scale_factor**i)))
+        for i in range(args.num_cnn_layers)
+    ]
+    for i in range(args.num_cnn_layers):
+        cnn_model.add(layers.Conv1D(
+            filters=cnn_filters[i],
+            kernel_size=2,
+            strides=1,
+            padding="valid",
+            activation="relu"))
     cnn_model.add(layers.GlobalMaxPool1D())
-    cnn_model.add(layers.Dense(100, activation="relu"))
+    dense_layers = [
+        min(1024,
+            max(8, int(
+            args.first_layer_size * args.dense_layer_sizes_scale_factor**i)))
+        for i in range(args.num_dense_layers)
+    ]
+    for i in range(args.num_dense_layers):
+        cnn_model.add(layers.Dense(dense_layers[i], activation="relu"))
     cnn_model.add(layers.Dense(1, activation="sigmoid"))
+
     cnn_model.compile(
         optimizer="adam",
         loss="binary_crossentropy",

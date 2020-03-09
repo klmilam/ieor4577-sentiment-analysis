@@ -1,6 +1,0 @@
-trainingInput:
-  hyperparameters:
-    goal: MAXIMIZE
-    hyperparameterMetricTag: val_acc
-    maxTrials: 20
-    maxParallelTrials: 3
