@@ -1,4 +1,5 @@
-from cloud_functions import preprocess
+import preprocess
+
 import googleapiclient.discovery
 from datetime import datetime
 
