@@ -3,6 +3,7 @@ import preprocess
 import googleapiclient.discovery
 from datetime import datetime
 
+from flask import json
 
 def predict(request):
     """Responds to any HTTP request.
@@ -46,4 +47,4 @@ def predict(request):
     payload_log["request_time"] = str(request_time)
     payload_log["preprocess_time"] = str(preprocess_time - request_time)
     payload_log["inference_time"] = str(prediction_time - preprocess_time)
-    return str(response)
+    return json.dumps(response)
