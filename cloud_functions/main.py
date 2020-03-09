@@ -47,4 +47,4 @@ def predict(request):
     payload_log["request_time"] = str(request_time)
     payload_log["preprocess_time"] = str(preprocess_time - request_time)
     payload_log["inference_time"] = str(prediction_time - preprocess_time)
-    return json.dumps(response)
+    return str(response)
