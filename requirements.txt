@@ -1,6 +1,6 @@
 apache-beam[gcp]==2.16.0
 gcsfs
-tensorflow==1.14.0
+tensorflow==1.15.2
 nltk
 pandas
 pytest
