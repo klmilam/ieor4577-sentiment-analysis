@@ -34,14 +34,14 @@ def predict(request):
     prediction_time = datetime.now()
     response = {}
 
-    if prediction["predictions"][0][0] >= 0.5:
+    if prediction[0]["dense_3"][0] >= 0.5:
         response["sentiment"] = "positive"
     else:
         response["sentiment"] = "negative"
 
     payload_log = {}
     payload_log["sentiment"] = response["sentiment"]
-    payload_log["prediction"] = prediction["predictions"][0][0]
+    payload_log["prediction"] = prediction[0]["dense_3"][0]
     payload_log["tweet"] = tweet
     payload_log["request_time"] = str(request_time)
     payload_log["preprocess_time"] = str(preprocess_time - request_time)
