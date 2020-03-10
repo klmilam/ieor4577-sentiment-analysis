@@ -4,7 +4,7 @@ import googleapiclient.discovery
 from datetime import datetime
 import tensorflow as tf
 
-from flask import json
+import json
 
 def predict(request):
     """Responds to any HTTP request.
@@ -49,5 +49,5 @@ def predict(request):
     payload_log["preprocess_time"] = str(preprocess_time - request_time)
     payload_log["inference_time"] = str(prediction_time - preprocess_time)
     with tf.gfile.GFile("gs://internal-klm/sentiment-analysis/"+timestamp+"/log.json") as outfile:
-        json.dumps(payload_log, outfile)
+        json.dump(payload_log, outfile)
     return str(response)
