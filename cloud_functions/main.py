@@ -48,6 +48,6 @@ def predict(request):
     payload_log["request_time"] = str(request_time)
     payload_log["preprocess_time"] = str(preprocess_time - request_time)
     payload_log["inference_time"] = str(prediction_time - preprocess_time)
-    with tf.gfile.GFile("gs://internal-klm/sentiment-analysis/"+timestamp+"/log.json") as outfile:
+    with tf.gfile.GFile("gs://internal-klm/sentiment-analysis/"+timestamp+"/log.json", "w") as outfile:
         json.dump(payload_log, outfile)
     return str(response)
